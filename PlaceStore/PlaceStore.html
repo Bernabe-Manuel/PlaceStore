@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlaceStore - Encontre estabelecimentos em Luanda</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#3B82F6',secondary:'#10B981'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="login-page" class="min-h-screen flex items-center justify-center login-bg">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="font-['Pacifico'] text-4xl text-primary mb-2">PlaceStore</h1>
+                <p class="text-gray-600">Encontre estabelecimentos em Luanda</p>
+            </div>
+            
+            <div class="mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Bem-vindo ao PlaceStore</h2>
+                <p class="text-gray-600 mb-6">Digite seu e-mail para continuar e descobrir estabelecimentos próximos a você.</p>
+            </div>
+            
+            <form id="login-form" class="space-y-4">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="ri-mail-line text-gray-400"></i>
+                    </div>
+                    <input type="email" id="email" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Seu e-mail" required>
+                </div>
+                
+                <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white py-3 px-4 rounded-button font-medium transition duration-200 !rounded-button whitespace-nowrap">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden h-screen flex flex-col">
+        <header class="bg-white shadow-sm py-3 px-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <h1 class="font-['Pacifico'] text-2xl text-primary mr-4">PlaceStore</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center text-gray-700">
+                    <div class="w-6 h-6 flex items-center justify-center mr-2">
+                        <i class="ri-map-pin-line"></i>
+                    </div>
+                    <span id="current-location">Luanda, Angola</span>
+                </div>
+                <div class="flex items-center text-gray-700">
+                    <div class="w-6 h-6 flex items-center justify-center mr-2">
+                        <i class="ri-user-line"></i>
+                    </div>
+                    <span id="user-email">usuário@email.com</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <div id="sidebar" class="w-80 bg-white border-r border-gray-200 flex flex-col">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="font-semibold text-lg text-gray-800 mb-3">Estabelecimentos</h2>
+                    <div class="relative mb-4">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-search-line text-gray-400"></i>
+                            </div>
+                        </div>
+                        <input type="text" id="search-input" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm" placeholder="Buscar local...">
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-farmacia" class="custom-checkbox" checked>
+                            <label for="filter-farmacia" class="flex items-center cursor-pointer">
+                                <div class="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center mr-2">
+                                    <i class="ri-medicine-bottle-line text-white text-xs"></i>
+                                </div>
+                                <span class="text-gray-700">Farmácias</span>
+                                <span class="ml-auto text-gray-500 text-sm">15</span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-cantina" class="custom-checkbox" checked>
+                            <label for="filter-cantina" class="flex items-center cursor-pointer">
+                                <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center mr-2">
+                                    <i class="ri-restaurant-line text-white text-xs"></i>
+                                </div>
+                                <span class="text-gray-700">Cantinas</span>
+                                <span class="ml-auto text-gray-500 text-sm">10</span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-supermercado" class="custom-checkbox" checked>
+                            <label for="filter-supermercado" class="flex items-center cursor-pointer">
+                                <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center mr-2">
+                                    <i class="ri-shopping-cart-line text-white text-xs"></i>
+                                </div>
+                                <span class="text-gray-700">Supermercados</span>
+                                <span class="ml-auto text-gray-500 text-sm">15</span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="filter-mercado" class="custom-checkbox" checked>
+                            <label for="filter-mercado" class="flex items-center cursor-pointer">
+                                <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center mr-2">
+                                    <i class="ri-store-line text-white text-xs"></i>
+                                </div>
+                                <span class="text-gray-700">Mercados</span>
+                                <span class="ml-auto text-gray-500 text-sm">10</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-2" id="places-list">
+                    <!-- Lista de estabelecimentos será gerada dinamicamente -->
+                </div>
+            </div>
+            
+            <div class="flex-1 relative">
+                <div id="map"></div>
+                <button id="my-location-btn" class="absolute bottom-6 right-6 bg-white rounded-full p-3 shadow-lg z-10 hover:bg-gray-100 transition">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <i class="ri-focus-3-line text-primary"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="place-details" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-5 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-gray-800" id="modal-title">Nome do Estabelecimento</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+                        <div class="w-6 h-6 flex items-center justify-center">
+                            <i class="ri-close-line"></i>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-5">
+                <div class="mb-4 flex items-center">
+                    <div id="modal-icon" class="w-8 h-8 rounded-full flex items-center justify-center mr-3">
+                        <i class="ri-store-line text-white"></i>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500">Tipo</span>
+                        <p id="modal-type" class="text-gray-800 font-medium">Tipo do estabelecimento</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <span class="text-sm text-gray-500">Endereço</span>
+                    <p id="modal-address" class="text-gray-800">Endereço completo</p>
+                </div>
+                
+                <div class="mb-5">
+                    <span class="text-sm text-gray-500">Horário de Funcionamento</span>
+                    <div class="mt-1 grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Segunda-Sexta:</span>
+                            <span id="modal-weekday" class="text-gray-800">08:00 - 18:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Sábado:</span>
+                            <span id="modal-saturday" class="text-gray-800">09:00 - 15:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Domingo:</span>
+                            <span id="modal-sunday" class="text-gray-800">Fechado</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="route-btn" class="w-full bg-primary hover:bg-blue-600 text-white py-3 px-4 rounded-button font-medium transition duration-200 flex items-center justify-center !rounded-button whitespace-nowrap">
+                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                        <i class="ri-route-line"></i>
+                    </div>
+                    Traçar Rota
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="route-panel" class="fixed inset-y-0 right-0 w-80 bg-white shadow-lg z-40 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="font-semibold text-lg text-gray-800">Rota</h3>
+            <button id="close-route" class="text-gray-400 hover:text-gray-500">
+                <div class="w-6 h-6 flex items-center justify-center">
+                    <i class="ri-close-line"></i>
+                </div>
+            </button>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-4">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-map-pin-user-line text-primary"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500">Origem</span>
+                        <p id="route-origin" class="text-gray-800">Sua localização atual</p>
+                    </div>
+                </div>
+                
+                <div class="w-0.5 h-6 bg-gray-300 ml-4"></div>
+                
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-map-pin-line text-green-600"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500">Destino</span>
+                        <p id="route-destination" class="text-gray-800">Nome do estabelecimento</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-gray-50 p-3 rounded">
+                    <span class="text-xs text-gray-500">Distância</span>
+                    <p id="route-distance" class="text-gray-800 font-medium">3,2 km</p>
+                </div>
+                <div class="bg-gray-50 p-3 rounded">
+                    <span class="text-xs text-gray-500">Tempo estimado</span>
+                    <p id="route-time" class="text-gray-800 font-medium">15 min</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <span class="text-sm text-gray-500 mb-2 block">Meio de transporte</span>
+                <div class="flex space-x-2">
+                    <button class="flex-1 py-2 px-3 bg-primary text-white rounded-button flex items-center justify-center !rounded-button whitespace-nowrap">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-car-line"></i>
+                        </div>
+                        Carro
+                    </button>
+                    <button class="flex-1 py-2 px-3 bg-gray-100 text-gray-700 rounded-button flex items-center justify-center !rounded-button whitespace-nowrap">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                            <i class="ri-walk-line"></i>
+                        </div>
+                        A pé
+                    </button>
+                </div>
+            </div>
+            
+            <div id="route-instructions" class="space-y-3">
+                <div class="flex items-start">
+                    <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                        <i class="ri-arrow-right-up-line text-primary"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">Siga em direção à Avenida 21 de Janeiro por 800m</p>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                        <i class="ri-arrow-right-line text-primary"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">Vire à direita na Rua do Comércio e continue por 1,2km</p>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                        <i class="ri-arrow-left-line text-primary"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">Vire à esquerda na Rua dos Combatentes e continue por 400m</p>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-6 h-6 flex items-center justify-center mr-3 mt-0.5">
+                        <i class="ri-map-pin-line text-green-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">O seu destino estará à direita</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

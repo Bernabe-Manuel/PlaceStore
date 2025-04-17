@@ -1,0 +1,73 @@
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+    font-family: 'Inter', sans-serif;
+}
+.login-bg {
+    background-image: url('https://readdy.ai/api/search-image?query=subtle%2520map%2520pattern%2520background%2520with%2520light%2520blue%2520color%2520scheme%252C%2520minimalist%2520design%252C%2520abstract%2520cartography%2520elements%252C%2520clean%2520and%2520modern%2520look%252C%2520suitable%2520for%2520a%2520location-based%2520service%2520website%252C%2520professional%2520appearance&width=1920&height=1080&seq=1&orientation=landscape');
+    background-size: cover;
+    background-position: center;
+}
+#map {
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+}
+.marker-farmacia {
+    background-color: #EF4444;
+    border-radius: 50%;
+}
+.marker-cantina {
+    background-color: #F59E0B;
+    border-radius: 50%;
+}
+.marker-supermercado {
+    background-color: #3B82F6;
+    border-radius: 50%;
+}
+.marker-mercado {
+    background-color: #10B981;
+    border-radius: 50%;
+}
+.custom-checkbox {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    position: relative;
+    cursor: pointer;
+}
+.custom-checkbox:checked {
+    background-color: #3B82F6;
+    border-color: #3B82F6;
+}
+.custom-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+.location-pulse {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.6);
+    position: relative;
+}
+.location-pulse::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3B82F6;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
